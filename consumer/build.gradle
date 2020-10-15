@@ -19,9 +19,10 @@ dependencies {
 
 pact {
   publish {
-    pactBrokerUrl = 'https://test.pact.dius.com.au'
-    pactBrokerUsername = project.pactBrokerUser
-    pactBrokerPassword = project.pactBrokerPassword
+    pactBrokerUrl = 'http://192.168.189.152:8500'
+    /*pactDirectory = '/target/pact'*/
+   /* pactBrokerUsername = project.pactBrokerUser
+    pactBrokerPassword = project.pactBrokerPassword*/
     tags = ['test']
   }
 }
