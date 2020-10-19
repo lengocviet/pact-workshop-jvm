@@ -12,11 +12,29 @@ dependencies {
   compile 'ch.qos.logback:logback-core:1.2.3'
   compile 'ch.qos.logback:logback-classic:1.2.3'
   compile 'org.apache.commons:commons-lang3:3.7'
-
   testCompile 'com.github.tomakehurst:wiremock:2.16.0'
   testCompile 'au.com.dius.pact.consumer:junit:4.1.7'
 }
+sourceSets {
+  integration {
+    resources.srcDir "$projectDir/src/test/java/integration"
+    compileClasspath += main.output + test.output
+    runtimeClasspath += main.output + test.output
+  }
+}
+task integrationTest(type: Test) {
+  testClassesDirs = sourceSets.integration.output.classesDirs
+  classpath = sourceSets.integration.runtimeClasspath
+}
 
+test {
+  if (System.properties['test.profile']== 'integration') {
+    exclude '**/au*/*' }
+   else if (System.properties['test.profile'] == "contract") {
+    exclude '**/*integration*'
+  }
+}
+check.dependsOn integrationTest
 pact {
   publish {
     pactBrokerUrl = 'http://192.168.189.152:8500'
