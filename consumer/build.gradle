@@ -1,8 +1,9 @@
 plugins {
-  id "au.com.dius.pact" version "4.1.7"
+  id 'au.com.dius.pact' version '4.1.9'
 }
 
 apply plugin: 'application'
+apply plugin: 'au.com.dius.pact'
 
 mainClassName = 'au.com.dius.pactworkshop.consumer.Consumer'
 version = '2'
@@ -13,21 +14,38 @@ dependencies {
   compile 'ch.qos.logback:logback-classic:1.2.3'
   compile 'org.apache.commons:commons-lang3:3.7'
   testCompile 'com.github.tomakehurst:wiremock:2.16.0'
+  testCompile 'au.com.dius.pact:consumer:4.1.9'
+  testCompile 'au.com.dius.pact:provider:4.1.9'
+  implementation 'au.com.dius.pact.consumer:junit:4.1.9'
 }
+
 sourceSets {
-  itest  {
+  contract  {
     java {
-      srcDir "src/test/java/integration"
+      srcDir 'src/test/java/au/com/dius/pactworkshop/consumer'
       compileClasspath += sourceSets.main.output
       runtimeClasspath += sourceSets.main.output
     }
   }
 }
-task itest(type: Test) {
-  description = "Run integration tests"
+configurations {
+  contractCompile.extendsFrom testCompile
+}
+
+dependencies {
+  contractCompile 'com.github.tomakehurst:wiremock:2.16.0'
+  contractCompile 'com.github.tomakehurst:wiremock:2.16.0'
+  contractCompile 'au.com.dius.pact:consumer:4.1.9'
+  contractCompile 'au.com.dius.pact:provider:4.1.9'
+  contractCompile 'au.com.dius.pact.consumer:junit:4.1.9'
+}
+task contract(type: Test) {
+  description = "Run contract tests"
   group = "verification"
-  testClassesDirs = sourceSets.itest.output.classesDirs
-  classpath = sourceSets.itest.runtimeClasspath
+  testClassesDirs = sourceSets.contract.output.classesDirs
+  classpath = sourceSets.contract.runtimeClasspath
+  mustRunAfter test
+
 }
 
 test {
@@ -37,12 +55,12 @@ test {
     exclude '**/*integration*'
   }
 }
-itest {
+contract {
   testLogging {
     events "passed","skipped", "failed"
   }
 }
-check.dependsOn itest
+check.dependsOn contract
 pact {
   publish {
     pactBrokerUrl = 'http://192.168.189.152:8500'
